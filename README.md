@@ -48,4 +48,4 @@ The set of resources needed to create an Azure virtual machine are:
 
 ## Evidence :iphone:
 ![conexionSSH](Images/conexionSSH.png)
-![resources](Images/resources.png)
+![azure_resources](Images/azure_resources.png)
