@@ -62,6 +62,7 @@ resource "azurerm_network_interface" "main" {
   ip_configuration {
     name                          = "testconfiguration1"
     subnet_id                     = azurerm_subnet.internal.id
+    public_ip_address_id          = azurerm_public_ip.my_terraform_public_ip.id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -97,40 +98,30 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 #Se crea la máquina virtual
-resource "azurerm_virtual_machine" "main" {
-  name                  = "${var.name_machine}-vm"
-  location              = azurerm_resource_group.vm.location
-  resource_group_name   = azurerm_resource_group.vm.name
-  network_interface_ids = [azurerm_network_interface.main.id]
-  vm_size               = "Standard_DS1_v2"
+resource "azurerm_linux_virtual_machine" "example" {
+  name                = "example-machine"
+  resource_group_name = azurerm_resource_group.vm.name
+  location            = azurerm_resource_group.vm.location
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.main.id,
+  ]
 
-  # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("C:/Users/danie/.ssh/id_rsa.pub")
+  }
 
-  # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
 
-  storage_image_reference {
+  source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-focal"
     sku       = "20_04-lts"
     version   = "latest"
-  }
-  storage_os_disk {
-    name              = "myosdisk1"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-  os_profile {
-    computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Password1234!"
-  }
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-  tags = {
-    environment = "staging"
   }
 }
