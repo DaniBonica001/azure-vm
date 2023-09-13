@@ -67,7 +67,7 @@ resource "azurerm_network_interface" "main" {
   }
 }
 
-#Se crea el grupo de seguridad
+#Se crea el grupo de seguridad y las reglas
 resource "azurerm_network_security_group" "example" {
   name                = "acceptanceTestSecurityGroup1"
   location            = azurerm_resource_group.vm.location
@@ -97,7 +97,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
   network_security_group_id = azurerm_network_security_group.example.id
 }
 
-#Se crea la máquina virtual
+#Se crea la máquina virtual de linux
 resource "azurerm_linux_virtual_machine" "example" {
   name                = "example-machine"
   resource_group_name = azurerm_resource_group.vm.name
