@@ -8,3 +8,8 @@ variable location {
   default     = "West Europe"
   description = "Location"
 }
+
+variable username {
+  type        = string
+  description = "Username vm"
+}

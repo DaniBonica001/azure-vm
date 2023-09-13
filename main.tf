@@ -9,38 +9,24 @@ resource "azurerm_resource_group" "vm" {
   location = var.location
 }
 
-# Se crea un Storage Account, para asociarlo al function app (recomendación de la documentación).
-resource "azurerm_storage_account" "sa" {
-  name                     = var.name_machine
-  resource_group_name      = azurerm_resource_group.vm.name
-  location                 = azurerm_resource_group.vm.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-# Se crea el recurso Service Plan para especificar el nivel de servicio 
-# (por ejemplo, "Consumo", "Functions Premium" o "Plan de App Service"), en este caso "Y1" hace referencia a plan consumo 
-resource "azurerm_service_plan" "sp" {
-  name                = var.name_machine
-  resource_group_name = azurerm_resource_group.vm.name
-  location            = azurerm_resource_group.vm.location
-  os_type             = "Windows"
-  sku_name            = "Y1"
-}
 
 #Se crea la red
-resource "azurerm_virtual_network" "main" {
+resource "azurerm_virtual_network" "network" {
   name                = "${var.name_machine}-network"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.vm.location
   resource_group_name = azurerm_resource_group.vm.name
+  dns_servers         = ["10.0.0.4", "10.0.0.5"]
+  tags = {
+    environment = "Production"
+  }
 }
 
 #Se crea la subred
-resource "azurerm_subnet" "internal" {
+resource "azurerm_subnet" "internal_subnet" {
   name                 = "internal"
   resource_group_name  = azurerm_resource_group.vm.name
-  virtual_network_name = azurerm_virtual_network.main.name
+  virtual_network_name = azurerm_virtual_network.network.name
   address_prefixes     = ["10.0.2.0/24"]
 }
 
@@ -54,21 +40,21 @@ resource "azurerm_public_ip" "my_terraform_public_ip" {
 
 
 #Se crea la interfaz de red
-resource "azurerm_network_interface" "main" {
+resource "azurerm_network_interface" "network_interface" {
   name                = "${var.name_machine}-nic"
   location            = azurerm_resource_group.vm.location
   resource_group_name = azurerm_resource_group.vm.name
 
   ip_configuration {
     name                          = "testconfiguration1"
-    subnet_id                     = azurerm_subnet.internal.id
+    subnet_id                     = azurerm_subnet.internal_subnet.id
     public_ip_address_id          = azurerm_public_ip.my_terraform_public_ip.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 #Se crea el grupo de seguridad y las reglas
-resource "azurerm_network_security_group" "example" {
+resource "azurerm_network_security_group" "security_group" {
   name                = "acceptanceTestSecurityGroup1"
   location            = azurerm_resource_group.vm.location
   resource_group_name = azurerm_resource_group.vm.name
@@ -92,24 +78,24 @@ resource "azurerm_network_security_group" "example" {
 }
 
 #Asociar interfaz con el grupo de seguridad
-resource "azurerm_network_interface_security_group_association" "example" {
-  network_interface_id      = azurerm_network_interface.main.id
-  network_security_group_id = azurerm_network_security_group.example.id
+resource "azurerm_network_interface_security_group_association" "association_interface_security" {
+  network_interface_id      = azurerm_network_interface.network_interface.id
+  network_security_group_id = azurerm_network_security_group.security_group.id
 }
 
 #Se crea la máquina virtual de linux
-resource "azurerm_linux_virtual_machine" "example" {
+resource "azurerm_linux_virtual_machine" "linux_virtual_machine" {
   name                = "example-machine"
   resource_group_name = azurerm_resource_group.vm.name
   location            = azurerm_resource_group.vm.location
   size                = "Standard_F2"
-  admin_username      = "adminuser"
+  admin_username      = var.username
   network_interface_ids = [
-    azurerm_network_interface.main.id,
+    azurerm_network_interface.network_interface.id,
   ]
 
   admin_ssh_key {
-    username   = "adminuser"
+    username   = var.username
     public_key = file("C:/Users/danie/.ssh/id_rsa.pub")
   }
 
