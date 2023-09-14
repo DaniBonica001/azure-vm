@@ -72,10 +72,25 @@ resource "azurerm_network_security_group" "security_group" {
     }
 
 
-  tags = {
+    tags = {
     environment = "Production"
   }
 }
+
+resource "azurerm_network_security_rule" "rule_icmp" {
+  name                       = "PING"
+  priority                   = 1000
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Icmp"
+  source_port_range          = "*"
+  destination_port_range     = "*"
+  source_address_prefix      = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.vm.name 
+  network_security_group_name = azurerm_network_security_group.security_group.name
+}
+
 
 #Asociar interfaz con el grupo de seguridad
 resource "azurerm_network_interface_security_group_association" "association_interface_security" {
