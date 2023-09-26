@@ -35,6 +35,6 @@ module "vm" {
   name_machine = var.name_machine
   location = azurerm_resource_group.vm.location
   resource_group_name = azurerm_resource_group.vm.name
-  subnet_id = zurerm_subnet.internal_subnet.id
+  subnet_id = azurerm_subnet.internal_subnet.id
   username = var.username
 }

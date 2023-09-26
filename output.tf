@@ -1,3 +1,3 @@
-    output "public_ip_address" {
-    value = azurerm_public_ip.my_terraform_public_ip.ip_address
-    }
+output "public_ip"{
+    value = module.vm.public_ip_address
+}
