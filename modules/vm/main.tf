@@ -59,6 +59,34 @@ resource "azurerm_network_security_rule" "rule_icmp" {
   network_security_group_name = azurerm_network_security_group.security_group.name
 }
 
+resource "azurerm_network_security_rule" "rule_tcp9000" {
+  name                       = "PING"
+  priority                   = 1002
+  direction                  = "*"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "9000"
+  source_address_prefix      = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = var.resource_group_name
+  network_security_group_name = azurerm_network_security_group.security_group.name
+}
+
+resource "azurerm_network_security_rule" "rule_tcp8080" {
+  name                       = "PING"
+  priority                   = 1000
+  direction                  = "*"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "8080"
+  source_address_prefix      = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = var.resource_group_name
+  network_security_group_name = azurerm_network_security_group.security_group.name
+}
+
 
 #Asociar interfaz con el grupo de seguridad
 resource "azurerm_network_interface_security_group_association" "association_interface_security" {
