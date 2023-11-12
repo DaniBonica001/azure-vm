@@ -15,8 +15,7 @@ resource "azurerm_virtual_network" "virtual_network" {
   name                = "${var.name_machine}-network"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.vm.location
-  resource_group_name = azurerm_resource_group.vm.name
-  dns_servers         = ["10.0.0.4", "10.0.0.5"]
+  resource_group_name = azurerm_resource_group.vm.name  
   tags = {
     environment = "Production"
   }

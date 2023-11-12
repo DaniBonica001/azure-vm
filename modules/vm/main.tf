@@ -60,7 +60,7 @@ resource "azurerm_network_security_rule" "rule_icmp" {
 }
 
 resource "azurerm_network_security_rule" "rule_tcp9000" {
-  name                       = "PING"
+  name                       = "Sonarqube"
   priority                   = 1002
   direction                  = "Inbound"
   access                     = "Allow"
@@ -74,7 +74,7 @@ resource "azurerm_network_security_rule" "rule_tcp9000" {
 }
 
 resource "azurerm_network_security_rule" "rule_tcp8080" {
-  name                       = "PING"
+  name                       = "Tcp8080"
   priority                   = 1003
   direction                  = "Inbound"
   access                     = "Allow"
