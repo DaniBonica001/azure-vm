@@ -62,7 +62,7 @@ resource "azurerm_network_security_rule" "rule_icmp" {
 resource "azurerm_network_security_rule" "rule_tcp9000" {
   name                       = "PING"
   priority                   = 1002
-  direction                  = "*"
+  direction                  = "Inbound"
   access                     = "Allow"
   protocol                   = "Tcp"
   source_port_range          = "*"
@@ -75,8 +75,8 @@ resource "azurerm_network_security_rule" "rule_tcp9000" {
 
 resource "azurerm_network_security_rule" "rule_tcp8080" {
   name                       = "PING"
-  priority                   = 1000
-  direction                  = "*"
+  priority                   = 1003
+  direction                  = "Inbound"
   access                     = "Allow"
   protocol                   = "Tcp"
   source_port_range          = "*"
@@ -99,30 +99,27 @@ resource "azurerm_linux_virtual_machine" "linux_virtual_machine" {
   name                = "modular-virtual-machine"
   location            = var.location
   resource_group_name = var.resource_group_name
-  network_interface_ids = [azurerm_network_interface.network_interface.id]
-  size                = "Standard_F2"
+  size               = "Standard_F2"
+  admin_username      = "adminuser"                                   # 
+  admin_password      = "P@$$w0rd1234!"  
+  disable_password_authentication = false  
+  network_interface_ids = [
+    azurerm_network_interface.network_interface.id
+  ]
 
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
-    version   = "latest"
+  # Configuración del disco del sistema operativo
+  os_disk {
+    caching              = "ReadWrite"                                # Caché de disco en modo lectura/escritura
+    storage_account_type = "Standard_LRS"                             # Tipo de cuenta de almacenamiento
   }
-  storage_os_disk {
-    name              = "myosdisk1"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
+
+  # Especificación de la imagen del sistema operativo
+  source_image_reference {
+    publisher = "Canonical"                                            # Editor de la imagen
+    offer     = "0001-com-ubuntu-server-focal"                         # Oferta de la imagen
+    sku       = "20_04-lts"                                            # SKU de la imagen
+    version   = "latest"                                               # Versión de la imagen
   }
-  os_profile {
-    computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Password1234!"
-  }
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-  tags = {
-    environment = "staging"
-  }
+
+  
 }
